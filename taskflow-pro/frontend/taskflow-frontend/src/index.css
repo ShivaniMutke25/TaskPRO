@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
@@ -37,39 +39,39 @@ body {
 }
 
 .btn-secondary {
-  @apply bg-white/5 hover:bg-white/10 text-slate-200 font-medium px-4 py-2 rounded-lg border border-white/10 transition-all duration-200 flex items-center gap-2 cursor-pointer;
+  @apply bg-white bg-opacity-5 hover:bg-white hover:bg-opacity-10 text-slate-200 font-medium px-4 py-2 rounded-lg border border-white border-opacity-10 transition-all duration-200 flex items-center gap-2 cursor-pointer;
 }
 
 .btn-danger {
-  @apply bg-red-500/10 hover:bg-red-500/20 text-red-400 font-medium px-4 py-2 rounded-lg border border-red-500/20 transition-all duration-200 cursor-pointer;
+  @apply bg-red-500 bg-opacity-10 hover:bg-red-500 hover:bg-opacity-20 text-red-400 font-medium px-4 py-2 rounded-lg border border-red-500 border-opacity-20 transition-all duration-200 cursor-pointer;
 }
 
 .input-field {
-  @apply w-full bg-white/5 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-200;
+  @apply w-full bg-white bg-opacity-5 border border-white border-opacity-10 rounded-lg px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all duration-200;
 }
 
 .card {
-  @apply rounded-xl border border-white/8 bg-[#1e2235] p-6 transition-all duration-200;
+  @apply rounded-xl border border-white border-opacity-10 bg-[#1e2235] p-6 transition-all duration-200;
 }
 
-.badge-todo { @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-500/20 text-slate-300; }
-.badge-in-progress { @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-yellow-500/20 text-yellow-300; }
-.badge-done { @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300; }
+.badge-todo { @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-500 bg-opacity-20 text-slate-300; }
+.badge-in-progress { @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-yellow-500 bg-opacity-20 text-yellow-300; }
+.badge-done { @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-500 bg-opacity-20 text-emerald-300; }
 
-.badge-low { @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300; }
-.badge-medium { @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300; }
-.badge-high { @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-red-500/20 text-red-400; }
+.badge-low { @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-500 bg-opacity-20 text-blue-300; }
+.badge-medium { @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-500 bg-opacity-20 text-amber-300; }
+.badge-high { @apply text-xs font-semibold px-2.5 py-1 rounded-full bg-red-500 bg-opacity-20 text-red-400; }
 
 .stat-card {
-  @apply card flex flex-col gap-3 hover:border-indigo-500/40 hover:-translate-y-0.5;
+  @apply card flex flex-col gap-3 hover:border-indigo-500 hover:border-opacity-40 hover:-translate-y-0.5;
 }
 
 .sidebar-link {
-  @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-200 font-medium;
+  @apply flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:text-white hover:bg-white hover:bg-opacity-5 transition-all duration-200 font-medium;
 }
 
 .sidebar-link.active {
-  @apply text-white bg-indigo-600/20 border border-indigo-500/30;
+  @apply text-white bg-indigo-600 bg-opacity-20 border border-indigo-500 border-opacity-30;
 }
 
 ::-webkit-scrollbar { width: 6px; }
