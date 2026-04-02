@@ -1,0 +1,59 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: task-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/task_db}
+    username: ${SPRING_DATASOURCE_USERNAME:task_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:task_password}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:localhost}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+  cache:
+    type: redis
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+
+jwt:
+  secret: "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437"
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      auth-service:
+        registerHealthIndicator: true
+        slidingWindowSize: 5
+        minimumNumberOfCalls: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+  retry:
+    instances:
+      auth-service:
+        maxAttempts: 3
+        waitDuration: 1s
+  timelimiter:
+    instances:
+      auth-service:
+        timeoutDuration: 2s
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,circuitbreakers

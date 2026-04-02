@@ -1,0 +1,33 @@
+# Java build output
+target/
+*.jar
+*.class
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# Node / frontend
+node_modules/
+dist/
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+*.log
+logs/
+
+# Docker volumes (local)
+postgres-auth-data/
+postgres-task-data/
+mongodb-data/
+redis-data/
