@@ -1,61 +1,84 @@
-# TaskFlow Pro 🚀
+# TaskPRO 🚀
 
-> A **production-style microservices task management system** built to demonstrate modern backend engineering practices — perfect for learning, portfolio showcasing, and job interviews.
+> A **production-grade microservices task management system** demonstrating enterprise-level architecture patterns and modern engineering practices.
 
 ![Java](https://img.shields.io/badge/Java-21-orange?style=flat-square)
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen?style=flat-square)
-![React](https://img.shields.io/badge/React-18-blue?style=flat-square)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.4-brightgreen?style=flat-square)
+![React](https://img.shields.io/badge/React-19-blue?style=flat-square)
 ![Kafka](https://img.shields.io/badge/Kafka-Event%20Driven-black?style=flat-square)
 ![Redis](https://img.shields.io/badge/Redis-Caching-red?style=flat-square)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square)
 
 ---
 
-## 🎯 Project Purpose
+## 🎯 Project Overview
 
-This is **NOT** a business product. It is an **engineering learning project** designed to:
+**TaskPRO** is a comprehensive microservices-based task management application designed to showcase **production-level architecture** with modern engineering practices. This project demonstrates how enterprise applications are built using industry-standard technologies and patterns.
 
-1. Practice **modern microservices architecture**
-2. Demonstrate **production-ready engineering tools**
-3. Provide strong **interview talking points**
-4. Show real-world patterns: caching, events, resilience, observability
+### Why This Project Exists
 
-> Business logic is **intentionally simple**. Engineering depth is **intentionally high**.
+This is **NOT** just another todo app. It's an **engineering learning platform** designed to:
+
+- **Demonstrate Microservices Architecture**: Real-world service separation with proper communication patterns
+- **Showcase Production Tools**: Service discovery, API gateway, event streaming, caching, monitoring
+- **Interview Preparation**: Solid talking points for system design and architecture discussions
+- **Learning Best Practices**: Clean code, proper separation of concerns, enterprise patterns
+
+> **Business Logic**: Intentionally simple (task management)  
+> **Engineering Depth**: Intentionally comprehensive (enterprise-grade patterns)
 
 ---
 
-## 🏗️ Architecture Overview
+## 🏗️ System Architecture
 
-```
-                          ┌─────────────────────────────┐
-                          │         React Frontend        │
-                          │  (Vite + TypeScript + TailwindCSS) │
-                          └──────────────┬──────────────┘
-                                         │ HTTP
-                          ┌──────────────▼──────────────┐
-                          │         API Gateway           │
-                          │   (Spring Cloud Gateway)      │
-                          │   JWT Validation Filter       │
-                          └──┬─────────┬──────────┬─────┘
-                             │         │          │
-              ┌──────────────▼─┐  ┌────▼──────┐  └──┐
-              │  Auth Service  │  │Task Service│     │
-              │  PostgreSQL    │  │PostgreSQL  │     │
-              │  JWT + BCrypt  │  │Redis Cache │     │
-              └────────────────┘  │Kafka Produce│    │
-                                  │Resilience4j│    │
-                                  └─────┬──────┘    │
-                                        │ Kafka      │
-                                  ┌─────▼──────────┐ │
-                                  │Notification Svc│ │
-                                  │   MongoDB      │ │
-                                  │ Kafka Consumer │ │
-                                  └────────────────┘ │
-                                                      │
-                          ┌───────────────────────────▼───┐
-                          │          Eureka Server         │
-                          │       Service Discovery        │
-                          └───────────────────────────────┘
+```mermaid
+graph TB
+    subgraph "Frontend Layer"
+        FE[React Frontend<br/>Vite + TypeScript + TailwindCSS]
+    end
+    
+    subgraph "API Gateway Layer"
+        GW[API Gateway<br/>Spring Cloud Gateway<br/>JWT Validation Filter]
+    end
+    
+    subgraph "Microservices Layer"
+        AS[Auth Service<br/>PostgreSQL + JWT]
+        TS[Task Service<br/>PostgreSQL + Redis + Kafka]
+        NS[Notification Service<br/>MongoDB + Kafka Consumer]
+    end
+    
+    subgraph "Infrastructure Layer"
+        ES[Eureka Server<br/>Service Discovery]
+        K[Kafka Cluster<br/>Event Streaming]
+        R[Redis<br/>Caching Layer]
+        PA[PostgreSQL Auth<br/>User Data]
+        PT[PostgreSQL Task<br/>Task Data]
+        MO[MongoDB<br/>Notifications]
+    end
+    
+    FE --> GW
+    GW --> AS
+    GW --> TS
+    GW --> NS
+    AS --> ES
+    TS --> ES
+    NS --> ES
+    AS --> PA
+    TS --> PT
+    TS --> R
+    TS --> K
+    NS --> K
+    NS --> MO
+    
+    classDef frontend fill:#e1f5fe
+    classDef gateway fill:#f3e5f5
+    classDef services fill:#e8f5e8
+    classDef infra fill:#fff3e0
+    
+    class FE frontend
+    class GW gateway
+    class AS,TS,NS services
+    class ES,K,R,PA,PT,MO infra
 ```
 
 ---
@@ -63,236 +86,561 @@ This is **NOT** a business product. It is an **engineering learning project** de
 ## 📦 Project Structure
 
 ```
-taskflow-pro/
+taskpro/
 ├── backend/
-│   ├── pom.xml                        # Parent Maven POM
-│   ├── eureka-server/                 # Service discovery
+│   ├── pom.xml                        # Parent Maven configuration
+│   ├── eureka-server/                 # Service discovery server
 │   ├── api-gateway/                   # Central entry point + JWT filter
-│   ├── auth-service/                  # Register, Login, JWT, BCrypt
-│   ├── task-service/                  # CRUD, Redis cache, Kafka producer
-│   └── notification-service/          # Kafka consumer, MongoDB
+│   ├── auth-service/                  # Authentication & user management
+│   ├── task-service/                  # Core business logic + caching + events
+│   └── notification-service/          # Event-driven notifications
 ├── frontend/
-│   └── taskflow-frontend/             # React 18 + TypeScript + Tailwind
+│   └── taskflow-frontend/             # React 19 + TypeScript + Vite
 ├── docker/
 │   └── prometheus/
-│       └── prometheus.yml
+│       └── prometheus.yml             # Monitoring configuration
 ├── .github/
 │   └── workflows/
-│       └── ci.yml                     # GitHub Actions CI/CD
-├── docker-compose.yml                 # Full local stack
-└── README.md
+│       └── ci.yml                     # CI/CD pipeline
+├── docker-compose.yml                 # Complete infrastructure setup
+└── README.md                          # This file
 ```
 
 ---
 
-## 🔧 Tech Stack
+## 🔧 Technology Stack
 
-| Layer | Technology |
-|---|---|
-| Language | Java 21 |
-| Framework | Spring Boot 3.x |
-| Service Mesh | Spring Cloud (Gateway, Eureka, OpenFeign) |
-| Auth | Spring Security + JWT + BCrypt |
-| Message Broker | Apache Kafka |
-| Cache | Redis |
-| Resilience | Resilience4j (Circuit Breaker, Retry, Timeout) |
-| Databases | PostgreSQL (Auth + Task), MongoDB (Notifications) |
-| Observability | Actuator + Micrometer + Prometheus + Grafana |
-| Testing | JUnit 5 + Mockito + Testcontainers |
-| API Docs | SpringDoc OpenAPI (Swagger UI) |
-| Frontend | React 18 + TypeScript + Vite + TailwindCSS |
-| HTTP Client | Axios + TanStack Query |
-| Containers | Docker + Docker Compose |
-| CI/CD | GitHub Actions |
+### Backend Technologies
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Language** | Java 21 | Modern Java with latest features |
+| **Framework** | Spring Boot 3.2.4 | Enterprise application framework |
+| **Microservices** | Spring Cloud 2023.0.1 | Service mesh components |
+| **API Gateway** | Spring Cloud Gateway | Central routing + security |
+| **Service Discovery** | Eureka Server | Dynamic service registration |
+| **Authentication** | Spring Security + JWT | Secure auth with tokens |
+| **Databases** | PostgreSQL + MongoDB | Relational + Document storage |
+| **Caching** | Redis | High-performance caching |
+| **Event Streaming** | Apache Kafka | Asynchronous messaging |
+| **Resilience** | Resilience4j | Circuit breaker + retry patterns |
+| **Observability** | Actuator + Prometheus | Monitoring + metrics |
+| **Testing** | JUnit 5 + Testcontainers | Comprehensive testing |
+
+### Frontend Technologies
+
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Framework** | React 19 | Modern UI framework |
+| **Language** | TypeScript | Type-safe JavaScript |
+| **Build Tool** | Vite 8 | Fast development server |
+| **Styling** | TailwindCSS | Utility-first CSS |
+| **HTTP Client** | Axios + TanStack Query | API calls + caching |
+| **Routing** | React Router 7 | Client-side routing |
+| **Icons** | Lucide React | Modern icon library |
+
+### Infrastructure
+
+| Component | Technology | Purpose |
+|---|---|---|
+| **Containerization** | Docker + Docker Compose | Local development environment |
+| **CI/CD** | GitHub Actions | Automated testing & deployment |
+| **Monitoring** | Prometheus + Grafana | Metrics + visualization |
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start Guide
 
 ### Prerequisites
-- **Java 21** (JDK) - for running backend services
-- **Node.js 20+** - for frontend development
-- **Maven 3.6+** - for building backend services
-- **Optional**: Docker Desktop (for containerized deployment)
 
-### Option 1: Manual Startup (Recommended for Development)
+Ensure you have these installed:
+- **Java 21** (JDK) - Backend development
+- **Node.js 20+** - Frontend development  
+- **Maven 3.6+** - Backend build tool
+- **Docker Desktop** - Containerized infrastructure (recommended)
 
-#### Step 1: Setup Infrastructure Services
-You need to manually install and start:
-- **PostgreSQL** (2 instances: auth_db, task_db)
-- **MongoDB** (for notifications)
-- **Redis** (for caching)
-- **Apache Kafka** (for event streaming)
+---
 
-#### Step 2: Build Backend Services
+## 🏃‍♂️ How to Run This Project
+
+### Option 1: Docker Compose (Recommended - One Command)
+
+This spins up the **entire production-like stack** with all services:
+
 ```bash
-cd taskflow-pro/backend
+# Clone and run everything
+git clone <repository-url>
+cd TaskPRO
+docker-compose up --build
+```
+
+**What this starts:**
+- All 5 microservices (Eureka, Gateway, Auth, Task, Notification)
+- All infrastructure (PostgreSQL x2, MongoDB, Redis, Kafka, Zookeeper)
+- Monitoring stack (Prometheus, Grafana)
+- Frontend application
+
+**Access URLs:**
+- **Frontend**: http://localhost:5173
+- **API Gateway**: http://localhost:8080
+- **Eureka Dashboard**: http://localhost:8761
+- **Grafana**: http://localhost:3000
+- **Prometheus**: http://localhost:9090
+
+---
+
+### Option 2: Manual Development Setup
+
+#### Step 1: Install & Start Infrastructure Services
+
+If Docker isn't available, you need to manually install and start these services:
+
+##### **Option A: Local Installation**
+```bash
+# PostgreSQL (2 separate instances needed)
+# Download: https://www.postgresql.org/download/
+# Instance 1: Port 5432, Database: auth_db
+# Instance 2: Port 5433, Database: task_db
+
+# MongoDB
+# Download: https://www.mongodb.com/try/download/community
+# Default: localhost:27017
+
+# Redis
+# Download: https://redis.io/download
+# Default: localhost:6379
+
+# Apache Kafka + Zookeeper
+# Download: https://kafka.apache.org/downloads
+# Zookeeper: localhost:2181
+# Kafka: localhost:9092
+```
+
+##### **Option B: Package Managers (Recommended)**
+```bash
+# Using Homebrew (macOS/Linux)
+brew install postgresql mongodb redis kafka
+
+# Using Chocolatey (Windows)
+choco install postgresql mongodb redis kafka
+
+# Using APT (Ubuntu/Debian)
+sudo apt update
+sudo apt install postgresql mongodb-server redis-server kafka-server
+```
+
+##### **Option C: Cloud Services (Easiest Alternative)**
+```bash
+# Use free tiers of cloud services:
+# PostgreSQL: https://supabase.com/ or https://neon.tech/
+# MongoDB: https://www.mongodb.com/atlas/database
+# Redis: https://redis.com/try-free/
+# Kafka: https://www.confluent.cloud/ (free tier available)
+```
+
+#### Step 2: Configure Infrastructure
+
+**PostgreSQL Setup:**
+```sql
+-- Connect to PostgreSQL (port 5432)
+CREATE DATABASE auth_db;
+CREATE USER auth_user WITH PASSWORD 'auth_password';
+GRANT ALL PRIVILEGES ON DATABASE auth_db TO auth_user;
+
+-- Connect to PostgreSQL (port 5433) 
+CREATE DATABASE task_db;
+CREATE USER task_user WITH PASSWORD 'task_password';
+GRANT ALL PRIVILEGES ON DATABASE task_db TO task_user;
+```
+
+**MongoDB Setup:**
+```bash
+# Create database and collection
+mongosh
+use notification_db
+db.createCollection("notifications")
+exit
+```
+
+**Redis Setup:**
+```bash
+# Start Redis server
+redis-server
+# Test connection
+redis-cli ping
+# Should return: PONG
+```
+
+**Kafka Setup:**
+```bash
+# Start Zookeeper
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+# Start Kafka (in new terminal)
+bin/kafka-server-start.sh config/server.properties
+
+# Create required topic
+bin/kafka-topics.sh --create --topic task-events --bootstrap-server localhost:9092
+```
+
+#### Step 3: Update Environment Configuration
+
+Create `.env` file with your local setup:
+```env
+# Database Configuration (adjust if using different ports/hosts)
+POSTGRES_AUTH_HOST=localhost
+POSTGRES_AUTH_PORT=5432
+POSTGRES_AUTH_DB=auth_db
+POSTGRES_AUTH_USER=auth_user
+POSTGRES_AUTH_PASSWORD=auth_password
+
+POSTGRES_TASK_HOST=localhost
+POSTGRES_TASK_PORT=5433
+POSTGRES_TASK_DB=task_db
+POSTGRES_TASK_USER=task_user
+POSTGRES_TASK_PASSWORD=task_password
+
+MONGODB_HOST=localhost
+MONGODB_PORT=27017
+MONGODB_DB=notification_db
+
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
+KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+
+# Service Ports
+EUREKA_PORT=8761
+AUTH_SERVICE_PORT=8081
+TASK_SERVICE_PORT=8082
+NOTIFICATION_SERVICE_PORT=8083
+API_GATEWAY_PORT=8080
+```
+
+#### Step 4: Build Backend Services
+
+```bash
+cd TaskPRO/backend
 mvn clean package -DskipTests
 ```
 
-#### Step 3: Start Services in Order
+#### Step 5: Start Services in Order
+
+Open **5 separate terminals** and start services in this sequence:
+
 ```bash
-# 1. Start Eureka Server (Service Discovery)
+# Terminal 1: Eureka Server (Service Discovery)
 java -jar eureka-server/target/eureka-server-1.0.0-SNAPSHOT.jar
 
-# 2. Start Auth Service (Port 8081)
+# Terminal 2: Auth Service (Port 8081)
 java -jar auth-service/target/auth-service-1.0.0-SNAPSHOT.jar
 
-# 3. Start Task Service (Port 8082)
+# Terminal 3: Task Service (Port 8082)  
 java -jar task-service/target/task-service-1.0.0-SNAPSHOT.jar
 
-# 4. Start Notification Service (Port 8083)
+# Terminal 4: Notification Service (Port 8083)
 java -jar notification-service/target/notification-service-1.0.0-SNAPSHOT.jar
 
-# 5. Start API Gateway (Port 8080)
+# Terminal 5: API Gateway (Port 8080)
 java -jar api-gateway/target/api-gateway-1.0.0-SNAPSHOT.jar
 ```
 
-#### Step 4: Start Frontend
+#### Step 6: Start Frontend
+
 ```bash
-cd taskflow-pro/frontend/taskflow-frontend
+cd TaskPRO/frontend/taskflow-frontend
 npm install
 npm run dev
 ```
 
-### Option 2: Docker Compose (Requires Virtualization)
+---
+
+### Option 3: Hybrid Approach (Docker for Infrastructure + Local Services)
+
+If you want to run microservices locally but use Docker for infrastructure:
+
 ```bash
-cd taskflow-pro
-docker-compose up --build
+# Start only infrastructure services
+docker-compose up postgres-auth postgres-task mongodb redis zookeeper kafka -d
+
+# Then run microservices manually (follow Option 2, Steps 4-6)
 ```
 
-### Step 5: Access Services
+---
 
-| Service | URL | Description |
+## 🔧 Troubleshooting Common Issues
+
+### **Port Conflicts**
+```bash
+# Check what's running on ports
+netstat -tulpn | grep :5432  # PostgreSQL
+netstat -tulpn | grep :6379  # Redis
+netstat -tulpn | grep :9092  # Kafka
+
+# Kill processes if needed
+sudo kill -9 <PID>
+```
+
+### **PostgreSQL Issues**
+```bash
+# Can't connect to PostgreSQL?
+# Check if service is running:
+sudo systemctl status postgresql
+
+# Start PostgreSQL:
+sudo systemctl start postgresql
+
+# Reset password:
+sudo -u postgres psql
+ALTER USER postgres PASSWORD 'your_password';
+```
+
+### **Redis Issues**
+```bash
+# Redis connection refused?
+# Start Redis server:
+redis-server
+
+# Test connection:
+redis-cli ping
+```
+
+### **Kafka Issues**
+```bash
+# Kafka not starting?
+# Check Zookeeper first:
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+# Then start Kafka:
+bin/kafka-server-start.sh config/server.properties
+
+# List topics to verify:
+bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+```
+
+### **Java/Maven Issues**
+```bash
+# Maven build failures?
+# Clean and rebuild:
+mvn clean
+mvn package -DskipTests
+
+# Java version issues?
+java -version  # Should be Java 21
+# Update JAVA_HOME if needed:
+export JAVA_HOME=/path/to/java21
+```
+
+### **Service Registration Issues**
+```bash
+# Services not registering with Eureka?
+# Check Eureka dashboard: http://localhost:8761
+# Verify service names in application.yml match Eureka registration
+# Check network connectivity between services
+```
+
+### **Database Connection Issues**
+```bash
+# Can't connect to databases?
+# Verify databases exist:
+psql -h localhost -p 5432 -U auth_user -d auth_db
+psql -h localhost -p 5433 -U task_user -d task_db
+
+# Check MongoDB:
+mongosh mongodb://localhost:27017/notification_db
+```
+
+---
+
+## 🚀 Quick Verification Steps
+
+After starting services, verify everything works:
+
+### **1. Check Infrastructure**
+```bash
+# PostgreSQL
+psql -h localhost -p 5432 -U auth_user -d auth_db -c "\l"
+
+# MongoDB
+mongosh --eval "db.adminCommand('listCollections')"
+
+# Redis
+redis-cli ping
+
+# Kafka
+bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+```
+
+### **2. Check Microservices**
+```bash
+# Eureka Dashboard
+curl http://localhost:8761
+
+# Service Health Checks
+curl http://localhost:8081/actuator/health
+curl http://localhost:8082/actuator/health
+curl http://localhost:8083/actuator/health
+curl http://localhost:8080/actuator/health
+```
+
+### **3. Test Application**
+```bash
+# Frontend
+curl http://localhost:5173
+
+# API Gateway
+curl http://localhost:8080/actuator/health
+```
+
+---
+
+### Service Access Points
+
+| Service | URL | Purpose |
 |---|---|---|
-| **Frontend** | http://localhost:5173 | React web application |
-| **API Gateway** | http://localhost:8080 | Main API entry point |
+| **Frontend App** | http://localhost:5173 | Main user interface |
+| **API Gateway** | http://localhost:8080 | Single API entry point |
 | **Eureka Dashboard** | http://localhost:8761 | Service discovery UI |
 | **Auth Service** | http://localhost:8081 | User authentication |
 | **Task Service** | http://localhost:8082 | Task management |
-| **Notification Service** | http://localhost:8083 | Notification system |
-| **Auth Swagger** | http://localhost:8081/swagger-ui.html | Auth API docs |
-| **Task Swagger** | http://localhost:8082/swagger-ui.html | Task API docs |
-| **Notification Swagger** | http://localhost:8083/swagger-ui.html | Notification API docs |
+| **Notification Service** | http://localhost:8083 | Notifications |
+| **Auth API Docs** | http://localhost:8081/swagger-ui.html | Auth API documentation |
+| **Task API Docs** | http://localhost:8082/swagger-ui.html | Task API documentation |
+| **Notification API Docs** | http://localhost:8083/swagger-ui.html | Notification API documentation |
 
 ---
 
-## 📋 Detailed Service Breakdown
+## 🔄 Data Flow & Communication
+
+### Authentication Flow
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as Frontend
+    participant G as API Gateway
+    participant A as Auth Service
+    participant E as Eureka
+    
+    U->>F: Login Request
+    F->>G: POST /auth/login
+    G->>E: Discover Auth Service
+    E-->>G: Return Auth Service URL
+    G->>A: Forward Request
+    A->>A: Validate Credentials
+    A->>A: Generate JWT Token
+    A-->>G: Return JWT + User Data
+    G-->>F: Response with JWT
+    F->>F: Store JWT Token
+```
+
+### Task Creation Flow
+```mermaid
+sequenceDiagram
+    participant F as Frontend
+    participant G as API Gateway
+    participant T as Task Service
+    participant R as Redis
+    participant K as Kafka
+    participant N as Notification Service
+    participant M as MongoDB
+    
+    F->>G: POST /tasks (with JWT)
+    G->>G: Validate JWT Token
+    G->>T: Forward Request
+    T->>T: Save to PostgreSQL
+    T->>R: Cache in Redis
+    T->>K: Publish TASK_CREATED Event
+    K->>N: Deliver Event
+    N->>M: Store Notification
+    N-->>T: Acknowledge
+    T-->>G: Response
+    G-->>F: Success Response
+```
+
+---
+
+## 📋 Service Deep Dive
 
 ### 🔐 Auth Service (Port 8081)
 **Responsibility**: User authentication and authorization
-- **Database**: PostgreSQL (auth_db)
-- **Features**:
-  - User registration/login
-  - JWT token generation
-  - Password encryption with BCrypt
-  - Role-based access control (USER/ADMIN)
-- **Key Endpoints**:
-  - `POST /auth/register` - Register new user
-  - `POST /auth/login` - User login
-  - `GET /auth/profile` - Get user profile
-- **Security**: Spring Security + JWT
+
+**Core Features:**
+- User registration and login
+- JWT token generation and validation
+- BCrypt password encryption
+- Role-based access control (USER/ADMIN)
+- Spring Security integration
+
+**Database Schema:**
+```sql
+users (
+    id BIGINT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(20) DEFAULT 'USER',
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+)
+```
+
+**Key Endpoints:**
+- `POST /auth/register` - Register new user
+- `POST /auth/login` - User authentication
+- `GET /auth/profile` - Get user profile
+- `GET /auth/validate` - Validate JWT token
+
+---
 
 ### 📋 Task Service (Port 8082)
-**Responsibility**: Task management and business logic
-- **Database**: PostgreSQL (task_db)
-- **Cache**: Redis (10-minute TTL)
-- **Message Broker**: Kafka (event producer)
-- **Features**:
-  - CRUD operations for tasks
-  - Redis caching for performance
-  - Kafka event publishing
-  - Resilience4j circuit breaker
-  - Task assignment and status tracking
-- **Key Endpoints**:
-  - `GET /tasks` - List tasks with pagination
-  - `POST /tasks` - Create new task
-  - `PATCH /tasks/{id}/status` - Update task status
-- **Events**: Publishes TASK_CREATED, TASK_ASSIGNED, TASK_COMPLETED
+**Responsibility**: Core task management with performance optimization
+
+**Core Features:**
+- Full CRUD operations for tasks
+- Redis caching (10-minute TTL)
+- Kafka event publishing
+- Resilience4j circuit breaker
+- Task assignment and status tracking
+
+**Database Schema:**
+```sql
+tasks (
+    id BIGINT PRIMARY KEY,
+    title VARCHAR(200) NOT NULL,
+    description TEXT,
+    priority VARCHAR(10) DEFAULT 'MEDIUM',
+    status VARCHAR(20) DEFAULT 'TODO',
+    due_date DATE,
+    assigned_to VARCHAR(100),
+    created_by VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW(),
+    updated_at TIMESTAMP DEFAULT NOW()
+)
+```
+
+**Caching Strategy:**
+- `tasks` - List of all tasks (evicted on any write operation)
+- `task::{id}` - Individual task details (evicted on update/delete)
+- **TTL**: 10 minutes for performance
+
+**Key Endpoints:**
+- `GET /tasks` - List tasks with pagination/filtering
+- `POST /tasks` - Create new task
+- `PATCH /tasks/{id}/status` - Update task status
+- `GET /tasks/stats` - Task statistics
+
+---
 
 ### 🔔 Notification Service (Port 8083)
-**Responsibility**: Real-time notifications
-- **Database**: MongoDB
-- **Message Broker**: Kafka (event consumer)
-- **Features**:
-  - Kafka event consumption
-  - MongoDB document storage
-  - Real-time notification delivery
-- **Events**: Consumes task events from Kafka
-- **Storage**: Document-based notifications in MongoDB
+**Responsibility**: Event-driven notification system
 
-### 🚪 API Gateway (Port 8080)
-**Responsibility**: Single entry point and request routing
-- **Features**:
-  - Request routing to microservices
-  - JWT token validation filter
-  - Load balancing with Eureka
-  - Cross-origin resource sharing (CORS)
-- **Routes**:
-  - `/auth/**` → Auth Service
-  - `/tasks/**` → Task Service
-  - `/notifications/**` → Notification Service
+**Core Features:**
+- Kafka event consumption
+- MongoDB document storage
+- Real-time notification processing
+- User-specific notification queries
 
-### 🔍 Eureka Server (Port 8761)
-**Responsibility**: Service discovery and registration
-- **Features**:
-  - Service registration
-  - Health monitoring
-  - Load balancing support
-  - Dashboard UI for service status
-
-### 🎨 Frontend (Port 5173)
-**Technology**: React 18 + TypeScript + Vite + TailwindCSS
-- **Features**:
-  - Modern responsive UI
-  - JWT token management
-  - Real-time updates
-  - Task management interface
-  - Role-based UI rendering
-- **HTTP Client**: Axios with TanStack Query for caching
-
----
-
-## 🔄 Data Flow Architecture
-
-### User Registration Flow
-1. Frontend sends registration request to API Gateway
-2. Gateway routes to Auth Service
-3. Auth Service validates data, encrypts password, stores in PostgreSQL
-4. Auth Service returns JWT token
-5. Frontend stores token for subsequent requests
-
-### Task Creation Flow
-1. Frontend sends task creation request with JWT token
-2. Gateway validates JWT and routes to Task Service
-3. Task Service stores task in PostgreSQL and caches in Redis
-4. Task Service publishes TASK_CREATED event to Kafka
-5. Notification Service consumes event and creates notification
-6. Frontend receives real-time update (if connected)
-
-### Authentication Flow
-1. All requests go through API Gateway
-2. Gateway validates JWT token in request header
-3. Invalid tokens are rejected with 401 status
-4. Valid requests are routed to appropriate service
-5. Services can validate token internally if needed
-
----
-
-## ⚙️ Configuration Details
-
-### Database Schemas
-**Auth Service (PostgreSQL)**:
-```sql
-users (id, name, email, password, role, created_at, updated_at)
-```
-
-**Task Service (PostgreSQL)**:
-```sql
-tasks (id, title, description, priority, status, due_date, assigned_to, created_by, created_at, updated_at)
-```
-
-**Notification Service (MongoDB)**:
+**MongoDB Schema:**
 ```json
 {
   "_id": ObjectId,
@@ -305,21 +653,83 @@ tasks (id, title, description, priority, status, due_date, assigned_to, created_
 }
 ```
 
-### Kafka Topics
-- **task-events**: Task lifecycle events
-- **Event Types**: TASK_CREATED, TASK_ASSIGNED, TASK_COMPLETED
-
-### Redis Cache Keys
-- `tasks` - List of all tasks
-- `task::{id}` - Individual task details
-- **TTL**: 10 minutes
+**Kafka Events Consumed:**
+- `TASK_CREATED` - New task created
+- `TASK_ASSIGNED` - Task assigned to user
+- `TASK_COMPLETED` - Task marked as done
 
 ---
 
-## 🛠 Development Setup
+### 🚪 API Gateway (Port 8080)
+**Responsibility**: Central entry point and security layer
 
-### Environment Variables
+**Core Features:**
+- Request routing to microservices
+- JWT token validation filter
+- Load balancing via Eureka
+- Cross-origin resource sharing (CORS)
+- Request/response transformation
+
+**Routing Rules:**
+- `/auth/**` → Auth Service
+- `/tasks/**` → Task Service  
+- `/notifications/**` → Notification Service
+
+---
+
+### 🔍 Eureka Server (Port 8761)
+**Responsibility**: Service discovery and registration
+
+**Core Features:**
+- Dynamic service registration
+- Health monitoring
+- Load balancing support
+- Dashboard UI for service status
+- Automatic service discovery
+
+---
+
+## 🎨 Frontend Architecture (Port 5173)
+
+**Technology Stack:**
+- **React 19** - Latest React with concurrent features
+- **TypeScript** - Type safety and better developer experience
+- **Vite 8** - Lightning-fast development and builds
+- **TailwindCSS** - Modern utility-first styling
+- **TanStack Query** - Server state management and caching
+- **React Router 7** - Client-side routing
+- **Lucide React** - Beautiful icon library
+
+**Key Features:**
+- JWT token management
+- Role-based UI rendering
+- Real-time task updates
+- Responsive design
+- Modern UI/UX patterns
+
+---
+
+## 🛠 Development & Testing
+
+### Running Tests
+
+```bash
+# Backend Unit Tests
+cd TaskPRO/backend
+mvn test
+
+# Backend Integration Tests (requires Testcontainers)
+mvn test -Dtest=*IntegrationTest
+
+# Frontend Tests
+cd TaskPRO/frontend/taskflow-frontend
+npm test
+```
+
+### Environment Configuration
+
 Create `.env` file in project root:
+
 ```env
 # Database Configuration
 POSTGRES_AUTH_HOST=localhost
@@ -351,360 +761,104 @@ NOTIFICATION_SERVICE_PORT=8083
 API_GATEWAY_PORT=8080
 ```
 
-### Running Tests
-```bash
-# Unit tests for all services
-cd backend
-mvn test
-
-# Integration tests (requires Testcontainers)
-mvn test -Dtest=*IntegrationTest
-
-# Frontend tests
-cd frontend/taskflow-frontend
-npm test
-```
-
 ---
 
-## � Swagger API Documentation
+## 📊 Monitoring & Observability
 
-All microservices include **SpringDoc OpenAPI 3.0** with interactive Swagger UI for API exploration and testing.
+### Prometheus Metrics
 
-### Accessing Swagger UI
+All services expose metrics at `/actuator/prometheus`:
 
-Once services are running, access the API documentation at:
+- **JVM Metrics**: Memory usage, GC pauses
+- **HTTP Metrics**: Request counts, response times
+- **Custom Metrics**: Business-specific KPIs
 
-| Service | Swagger UI URL | Direct API Docs |
-|---|---|---|
-| **Auth Service** | http://localhost:8081/swagger-ui.html | http://localhost:8081/v3/api-docs |
-| **Task Service** | http://localhost:8082/swagger-ui.html | http://localhost:8082/v3/api-docs |
-| **Notification Service** | http://localhost:8083/swagger-ui.html | http://localhost:8083/v3/api-docs |
-| **API Gateway** | http://localhost:8080/swagger-ui.html | http://localhost:8080/v3/api-docs |
+### Grafana Dashboards
 
-### Using Swagger UI
+Access Grafana at http://localhost:3000 to visualize:
+- Service performance metrics
+- Resource utilization
+- Business KPIs
+- Error rates and alerts
 
-1. **Interactive Testing**: Try API endpoints directly from your browser
-2. **Authentication**: Use the "Authorize" button to add JWT tokens
-3. **Request/Response Examples**: View expected request formats and responses
-4. **Schema Documentation**: Understand data models and validation rules
+### Health Checks
 
-### Key API Endpoints by Service
-
-#### 🔐 Auth Service (Port 8081)
-```yaml
-# Authentication Endpoints
-POST /auth/register          # Register new user
-POST /auth/login             # User login (returns JWT)
-GET /auth/profile           # Get current user profile
-GET /auth/validate          # Validate JWT token
-
-# User Management (Admin only)
-GET /auth/users             # List all users
-GET /auth/users/{id}        # Get user by ID
-DELETE /auth/users/{id}     # Delete user
-```
-
-#### 📋 Task Service (Port 8082)
-```yaml
-# Task CRUD Operations
-GET /tasks                  # List tasks with pagination/filtering
-POST /tasks                 # Create new task
-GET /tasks/{id}            # Get task by ID
-PUT /tasks/{id}            # Update task completely
-PATCH /tasks/{id}          # Partial task update
-DELETE /tasks/{id}         # Delete task
-
-# Task Management
-PATCH /tasks/{id}/status   # Update task status
-PATCH /tasks/{id}/assign   # Assign task to user
-GET /tasks/search          # Search tasks
-
-# Statistics
-GET /tasks/stats           # Task statistics by status
-GET /tasks/stats/priority  # Task statistics by priority
-```
-
-#### 🔔 Notification Service (Port 8083)
-```yaml
-# Notification Management
-GET /notifications/user/{userId}    # Get user notifications
-GET /notifications/{id}             # Get notification by ID
-PATCH /notifications/{id}/read     # Mark notification as read
-DELETE /notifications/{id}          # Delete notification
-
-# Notification Stats
-GET /notifications/stats/{userId}   # User notification statistics
-GET /notifications/stats           # Global notification statistics
-```
-
-#### 🚪 API Gateway (Port 8080)
-```yaml
-# Routes to all services
-# All requests are proxied to appropriate microservice
-# JWT validation is performed at gateway level
-
-# Health Check
-GET /actuator/health          # Gateway health status
-GET /actuator/health/**      # Service-specific health checks
-```
-
-### Authentication in Swagger
-
-1. **Get JWT Token**: Use `/auth/login` endpoint
-2. **Authorize**: Click "Authorize" button in Swagger UI
-3. **Add Token**: Enter `Bearer <your-jwt-token>`
-4. **Test Authenticated Endpoints**: All protected endpoints will now work
-
-### Example API Usage in Swagger
-
-#### 1. Register a User
-```json
-POST /auth/register
-{
-  "name": "John Doe",
-  "email": "john@example.com", 
-  "password": "password123",
-  "role": "USER"
-}
-```
-
-#### 2. Login and Get Token
-```json
-POST /auth/login
-{
-  "email": "john@example.com",
-  "password": "password123"
-}
-// Response: {"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."}
-```
-
-#### 3. Create Task (with JWT)
-```json
-POST /tasks
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-{
-  "title": "Implement login page",
-  "description": "Build the frontend login page with form validation",
-  "priority": "HIGH",
-  "dueDate": "2024-12-31",
-  "assignedTo": "jane@example.com"
-}
-```
-
-### Advanced Swagger Features
-
-#### 📥 Import API Collection
-- Export OpenAPI spec: `GET /v3/api-docs`
-- Import to Postman, Insomnia, or other API clients
-- Use for automated testing
-
-#### 🔍 API Exploration
-- **Try it out**: Test endpoints with different parameters
-- **Model Schemas**: View data structures and validation
-- **Response Examples**: See expected response formats
-- **Error Codes**: Understand HTTP status codes and error messages
-
-#### 📊 Monitoring Integration
-- **Actuator Endpoints**: Health checks and metrics
-- **Prometheus Metrics**: `GET /actuator/prometheus`
-- **Service Health**: `GET /actuator/health`
-
----
-
-## �🔐 API Usage Examples
-
-### Register a User
-```bash
-POST http://localhost:8080/auth/register
-Content-Type: application/json
-
-{
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "password123",
-  "role": "USER"
-}
-```
-
-### Login
-```bash
-POST http://localhost:8080/auth/login
-Content-Type: application/json
-
-{
-  "email": "john@example.com",
-  "password": "password123"
-}
-```
-Response:
-```json
-{
-  "token": "<JWT_TOKEN>",
-  "user": { "id": 1, "name": "John Doe", "email": "john@example.com", "role": "USER" }
-}
-```
-
-### Create a Task (authenticated)
-```bash
-POST http://localhost:8080/tasks
-Authorization: Bearer <JWT_TOKEN>
-Content-Type: application/json
-
-{
-  "title": "Implement login page",
-  "description": "Build the frontend login page with form validation",
-  "priority": "HIGH",
-  "dueDate": "2024-12-31",
-  "assignedTo": "jane@example.com"
-}
-```
-
-### List Tasks with Filtering + Pagination
-```bash
-GET http://localhost:8080/tasks?status=IN_PROGRESS&page=0&size=10
-Authorization: Bearer <JWT_TOKEN>
-```
-
-### Update Task Status
-```bash
-PATCH http://localhost:8080/tasks/1/status
-Authorization: Bearer <JWT_TOKEN>
-Content-Type: application/json
-
-{ "status": "DONE" }
-```
-
-### Get Notifications
-```bash
-GET http://localhost:8080/notifications/user/john@example.com
-Authorization: Bearer <JWT_TOKEN>
-```
-
----
-
-## 📨 Kafka Event Design
-
-| Event | Trigger | Topic |
-|---|---|---|
-| `TASK_CREATED` | Task is created | `task-events` |
-| `TASK_ASSIGNED` | Task assigned to user | `task-events` |
-| `TASK_COMPLETED` | Task status set to DONE | `task-events` |
-
-### Event Payload Structure
-```json
-{
-  "eventType": "TASK_ASSIGNED",
-  "taskId": 42,
-  "title": "Implement login page",
-  "assignedTo": "jane@example.com",
-  "createdBy": "john@example.com",
-  "timestamp": "2024-09-15T10:30:00"
-}
-```
-
----
-
-## ⚡ Redis Caching Strategy
-
-| Cache Key | Triggered By | Evicted On |
-|---|---|---|
-| `tasks` | GET /tasks | POST, PUT, PATCH, DELETE /tasks |
-| `task::{id}` | GET /tasks/{id} | PUT, PATCH /tasks/{id}, DELETE |
-
-Cache TTL: **10 minutes**
-
----
-
-## 🛡️ Resilience4j (Task Service → Auth Service)
-
-| Pattern | Configuration |
-|---|---|
-| Circuit Breaker | Opens after 50% failures over sliding window of 5 calls |
-| Retry | Max 3 attempts, 1s wait between retries |
-| Timeout | 2 seconds per Auth Service call |
-
----
-
-## 🔑 Role-Based Authorization
-
-| Role | Permissions |
-|---|---|
-| `USER` | Create, view, and update own tasks |
-| `ADMIN` | Assign tasks to any user, view all tasks |
-
-JWT payload includes the `role` claim which is validated by the API Gateway filter and used by the frontend for conditional rendering.
-
----
-
-## 📊 Observability
-
-Each Spring Boot service exposes:
-- `/actuator/health` — Health check
-- `/actuator/prometheus` — Prometheus metrics
-
-Grafana connects to Prometheus at `http://prometheus:9090`.
-
-**JVM metrics tracked:** `jvm_memory_used_bytes`, `jvm_gc_pause_seconds`, `http_server_requests_seconds`
-
----
-
-## 🧪 Testing
-
-### Run unit tests
-```bash
-cd backend/auth-service
-mvn test
-```
-
-### Run integration tests (requires Docker for Testcontainers)
-```bash
-mvn test -Dtest=AuthServiceIntegrationTest
-```
-
-Testcontainers automatically spins up:
-- PostgreSQL 15 for Auth & Task integration tests
-- Kafka (embedded) for Task Service event tests
-- MongoDB for Notification Service tests
+Each service provides health endpoints:
+- `/actuator/health` - Overall service health
+- `/actuator/health/readiness` - Readiness probe
+- `/actuator/health/liveness` - Liveness probe
 
 ---
 
 ## 🔄 CI/CD Pipeline
 
-GitHub Actions (`.github/workflows/ci.yml`) runs on every push/PR to `main`:
+GitHub Actions (`.github/workflows/ci.yml`) automatically:
 
-**Backend:**
-1. Start PostgreSQL, Redis, MongoDB as service containers
-2. Build all Maven modules
-3. Run unit + integration tests
+**Backend Pipeline:**
+1. Sets up Java 21 and Maven
+2. Starts infrastructure containers (PostgreSQL, Redis, MongoDB)
+3. Builds all Maven modules
+4. Runs unit and integration tests
+5. Generates test reports
 
-**Frontend:**
-1. Install npm dependencies
-2. Build production bundle (`npm run build`)
+**Frontend Pipeline:**
+1. Sets up Node.js 20
+2. Installs npm dependencies
+3. Runs linting and type checking
+4. Builds production bundle
+5. Runs unit tests
 
 ---
 
-## 🏭 Key Engineering Concepts (Interview-Ready)
+## 🎯 Key Engineering Concepts
 
-| Concept | Where Used | Key Talking Point |
+| Concept | Implementation | Interview Talking Points |
 |---|---|---|
-| **Service Discovery** | Eureka Server | All services register; Gateway routes to `lb://service-name` |
-| **JWT Auth** | Auth Service + Gateway | Token issued on login, validated at Gateway filter level |
-| **RBAC** | Security config | `ROLE_ADMIN` vs `ROLE_USER` via Spring `@PreAuthorize` |
-| **Event Streaming** | Kafka | Task Service produces; Notification Service consumes asynchronously |
-| **Caching** | Redis in Task Service | `@Cacheable`, `@CacheEvict` with JSON serialization and 10min TTL |
-| **Circuit Breaker** | Resilience4j | Protects Task Service from Auth Service failures with fallback |
-| **API Gateway** | Spring Cloud Gateway | Single entry, JWT filter, load-balanced routing |
-| **Testcontainers** | Integration tests | Real DB/Kafka in tests, no mocking infra |
-| **Observability** | Prometheus + Grafana | Micrometer instruments JVM + HTTP metrics |
-| **Dockerized** | Docker Compose | Full stack: 14 containers, one command |
+| **Microservices** | 5 independent services | Service separation, bounded contexts |
+| **Service Discovery** | Eureka Server | Dynamic registration, load balancing |
+| **API Gateway** | Spring Cloud Gateway | Single entry point, security, routing |
+| **Event-Driven** | Kafka + MongoDB | Asynchronous communication, eventual consistency |
+| **Caching Strategy** | Redis with TTL | Performance optimization, cache invalidation |
+| **Circuit Breaker** | Resilience4j | Fault tolerance, graceful degradation |
+| **JWT Authentication** | Spring Security + JWT | Stateless auth, token validation |
+| **Database Polyglot** | PostgreSQL + MongoDB | Right database for right job |
+| **Containerization** | Docker Compose | Environment consistency, deployment |
+| **Observability** | Prometheus + Grafana | Monitoring, alerting, debugging |
+| **Testcontainers** | Integration testing | Real infrastructure in tests |
+
+---
+
+## 🚀 Production Deployment Considerations
+
+This project demonstrates patterns that scale to production:
+
+### Scalability
+- **Horizontal Scaling**: Each service can be scaled independently
+- **Load Balancing**: Eureka + Gateway provide automatic load distribution
+- **Database Scaling**: Separate databases allow independent optimization
+
+### Resilience
+- **Circuit Breakers**: Prevent cascading failures
+- **Retry Mechanisms**: Handle transient failures
+- **Health Checks**: Enable automatic recovery
+
+### Security
+- **JWT Tokens**: Stateless authentication
+- **API Gateway Security**: Centralized security policies
+- **Role-Based Access**: Fine-grained authorization
+
+### Performance
+- **Redis Caching**: Reduce database load
+- **Event Streaming**: Asynchronous processing
+- **Connection Pooling**: Efficient resource usage
 
 ---
 
 ## 📝 License
 
-MIT License. Free to use for learning and portfolio purposes.
+MIT License - Free to use for learning, portfolio, and educational purposes.
 
 ---
 
-> Built as a **learning-focused production architecture showcase**. Simple business logic. Strong engineering foundation.
+> **TaskPRO** - Where **simple business logic** meets **enterprise-grade engineering**.  
+> Built for learning, designed for interviews, architected for production.
